@@ -53,7 +53,7 @@ def extract_street_addresses(street_name, master_source, destination_file, flag)
     with open(destination_file + '.csv', flag, newline='') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=',')
         if flag == 'w':
-            csv_writer.writerow(['Number', 'Street', 'City', 'State', 'PostalCode', 'Latitude', 'Longitude'])
+            csv_writer.writerow(['Number', 'Street', 'City', 'State', 'PostalCode', 'Latitude', 'Longitude', 'Type', 'ApartmentNumber'])
         for address in street_addresses:
             match_number = re.search(r'\d+', address['AddressLine1'])
             number = match_number.group(0)
@@ -64,7 +64,13 @@ def extract_street_addresses(street_name, master_source, destination_file, flag)
             postal_code = address['PostalCode']
             latitude = address['Latitude']
             longitude = address['Longitude']
-            csv_writer.writerow([number, street, city, state, postal_code, latitude, longitude])
+            if address['SuiteCount'] != '0' or address['SuiteName']:
+                address_type = 'Apartment'
+                apartment = address['SuiteName']
+            else:
+                address_type = 'House'
+                apartment = None
+            csv_writer.writerow([number, street, city, state, postal_code, latitude, longitude, address_type, apartment])
 
 match sys.argv[1]:
     case 'pull':
