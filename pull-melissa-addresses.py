@@ -15,7 +15,7 @@ def append_master_address(records, filename):
     with open(filename, 'w') as output_file:
         json.dump(addresses, output_file)
 
-def request_addresses(territory, latitude, longitude, radius, filename):
+def request_addresses(territory, latitude, longitude, radius, records, filename):
     url = 'https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup'
     melissa_key = 'Q5S2W3lAlvClBjtiVV9jxl**nSAcwXpxhQ0PC2lXxuDAZ-**'
     params = {
@@ -26,14 +26,17 @@ def request_addresses(territory, latitude, longitude, radius, filename):
         'dist': radius,
         'opt': 'IncludeApartments:on;IncludeUndeliverable:on',
         'format': 'json',
-        'recs': '20'
+        'recs': records
     }
     response = requests.get(url, params=params)
 
-    with open(territory + '.json', 'w') as json_file:
-        json.dump(response.json(), json_file)
+    if response.ok:
+        with open(territory + '.json', 'w') as json_file:
+            json.dump(response.json(), json_file)
 
-    append_master_address(response.json()['Records'], filename)
+        append_master_address(response.json()['Records'], filename)
+    else:
+        print('Response code: ' + str(response.status_code) + '\nResponse detail: ' + response.text)
 
 def extract_street_addresses(street_name, master_source, destination_file, flag):
     with open(master_source, 'r') as source_file:
@@ -63,7 +66,7 @@ def extract_street_addresses(street_name, master_source, destination_file, flag)
 
 match sys.argv[1]:
     case 'pull':
-        request_addresses(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], master_file)
+        request_addresses(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], master_file)
     case 'export':
         extract_street_addresses(sys.argv[2], master_file, sys.argv[3], 'w')
     case 'append':
