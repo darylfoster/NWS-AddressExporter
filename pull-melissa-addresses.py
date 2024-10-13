@@ -42,7 +42,10 @@ def extract_street_addresses(street_name, master_source, destination_file, flag)
         addresses = json.load(source_file)
 
     street_addresses = []
-    pattern = re.compile(street_name)
+    if street_name == 'ALL':
+        pattern = '.*'
+    else:
+        pattern = re.compile(street_name)
     for address in addresses.values():
         if re.search(pattern, address['AddressLine1']):
             street_addresses.append(address)
