@@ -4,41 +4,69 @@ import csv
 import re
 import json
 
-url = 'https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup'
-melissa_key = 'Q5S2W3lAlvClBjtiVV9jxl**nSAcwXpxhQ0PC2lXxuDAZ-**'
-territory = sys.argv[1]
-latitude = sys.argv[2]
-longitude = sys.argv[3]
-radius = sys.argv[4]
-params = {
-    't': territory,
-    'id': melissa_key,
-    'lat': latitude,
-    'long': longitude,
-    'dist': radius,
-    'opt': 'IncludeApartments:on;IncludeUndeliverable:on',
-    'format': 'json',
-    'recs': '20'
-}
-response = requests.get(url, params=params)
+master_file = 'TransylvaniaCounty.json'
+function = sys.argv[1]
 
-with open(territory + '.json', 'w') as json_file:
-    json.dump(response.json(), json_file)
+def append_master_address(records, filename):
+    with open(filename, 'r') as source_file:
+        addresses = json.load(source_file)
+    for record in records:
+        addresses[record['AddressKey']] = record
+    with open(filename, 'w') as output_file:
+        json.dump(addresses, output_file)
 
-with open(territory + '.json', 'r') as json_file:
-    response = json.load(json_file)
+def request_addresses(territory, latitude, longitude, radius, filename):
+    url = 'https://reversegeo.melissadata.net/v3/web/ReverseGeoCode/doLookup'
+    melissa_key = 'Q5S2W3lAlvClBjtiVV9jxl**nSAcwXpxhQ0PC2lXxuDAZ-**'
+    params = {
+        't': territory,
+        'id': melissa_key,
+        'lat': latitude,
+        'long': longitude,
+        'dist': radius,
+        'opt': 'IncludeApartments:on;IncludeUndeliverable:on',
+        'format': 'json',
+        'recs': '20'
+    }
+    response = requests.get(url, params=params)
 
-with open(territory + '.csv', 'w', newline='') as csv_file:
-    csv_writer = csv.writer(csv_file, delimiter=',')
-    csv_writer.writerow(['Number', 'Street', 'City', 'State', 'PostalCode', 'Latitude', 'Longitude'])
-    for address in response.json()['Records']:
-        match_number = re.search(r'\d+', address['AddressLine1'])
-        number = match_number.group(0)
-        match_street = re.search(r'\d+\s(.*)', address['AddressLine1'])
-        street = match_street.group(1)
-        city = address['City']
-        state = address['State']
-        postal_code = address['PostalCode']
-        latitude = address['Latitude']
-        longitude = address['Longitude']
-        csv_writer.writerow([number, street, city, state, postal_code, latitude, longitude])
+    with open(territory + '.json', 'w') as json_file:
+        json.dump(response.json(), json_file)
+
+    append_master_address(response.json()['Records'], filename)
+
+def extract_street_addresses(street_name, master_source, destination_file, flag):
+    with open(master_source, 'r') as source_file:
+        addresses = json.load(source_file)
+
+    street_addresses = []
+    pattern = re.compile(street_name)
+    for address in addresses.values():
+        if re.search(pattern, address['AddressLine1']):
+            street_addresses.append(address)
+
+    with open(destination_file + '.csv', flag, newline='') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=',')
+        if flag == 'w':
+            csv_writer.writerow(['Number', 'Street', 'City', 'State', 'PostalCode', 'Latitude', 'Longitude'])
+        for address in street_addresses:
+            match_number = re.search(r'\d+', address['AddressLine1'])
+            number = match_number.group(0)
+            match_street = re.search(r'\d+\s(.*)', address['AddressLine1'])
+            street = match_street.group(1)
+            city = address['City']
+            state = address['State']
+            postal_code = address['PostalCode']
+            latitude = address['Latitude']
+            longitude = address['Longitude']
+            csv_writer.writerow([number, street, city, state, postal_code, latitude, longitude])
+
+match sys.argv[1]:
+    case 'pull':
+        request_addresses(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], master_file)
+    case 'export':
+        extract_street_addresses(sys.argv[2], master_file, sys.argv[3], 'w')
+    case 'append':
+        extract_street_addresses(sys.argv[2], master_file, sys.argv[3], 'a')
+    case default:
+        print('Unknown argument: ' + sys.argv[1])
