@@ -23,6 +23,9 @@ Pulls addresses from [Melissa.com](melissa.com) and exports address data into CS
     b. Windows
 
     ```> C:\path\to\new\virtual\environment\Scripts\activate```
+4. Install Python "requests" package with the following command:
+
+    ```(venv) python3 -m pip install requests```
 
 ## Usage
 
