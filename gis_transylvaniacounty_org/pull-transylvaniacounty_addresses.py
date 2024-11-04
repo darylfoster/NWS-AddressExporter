@@ -1,4 +1,5 @@
 from urllib.parse import urlencode
+import sys
 import requests
 import csv
 import json
@@ -31,12 +32,24 @@ def request_addresses():
         return None
 
 def append_master_addresses(records):
-    address_db = {}
+    with open('TransylvaniaCounty.json', 'r') as master_input:
+        address_db = json.load(master_input)
+    with open('TransylvaniaCounty-Exported.json', 'r') as exported_file:
+        exported_addresses = json.load(exported_file)
     for record in records:
-        address_db[record['attributes']['OBJECTID']] = record['attributes']
-    with open('TransylvaniaCounty.json', 'w') as master_file:
-        json.dump(address_db, master_file)
+        address = record['attributes']
+        if exported_addresses[record['FULLADDR'] + '-' + record['POSTALCOM']]:
+            address['Exported'] = True
+        address_db[str(record['attributes']['OBJECTID'])] = address
+    with open('TransylvaniaCounty.json', 'w') as master_output:
+        json.dump(address_db, master_output)
 
 # Script starts here
-address_data = request_addresses()
-append_master_addresses(address_data)
+action = sys.argv[1]
+
+match action:
+    case 'pull':
+        address_data = request_addresses()
+        append_master_addresses(address_data)
+    case default:
+        print('Unknown argument: ' + action)
