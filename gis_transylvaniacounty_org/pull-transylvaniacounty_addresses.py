@@ -40,17 +40,19 @@ def append_master_addresses(records):
         exported_addresses = json.load(exported_file)
     for record in records:
         address = record['attributes']
-        if address['FULLADDR'] + '-' + address['POSTALCOM'] in exported_addresses:
-            address['Exported'] = True
-        else:
-            address['Exported'] = False
-        address_db[str(record['attributes']['OBJECTID'])] = address
+        if not address_db[str(address['OBJECTID'])]:
+            if address['FULLADDR'] + '-' + address['POSTALCOM'] in exported_addresses:
+                address['Exported'] = True
+            else:
+                address['Exported'] = False
+            address_db[str(address['OBJECTID'])] = address
     with open(master_file_name, 'w') as master_output:
         json.dump(address_db, master_output)
 
 def export_street_addresses(file_name):
     with open(master_file_name, 'r') as master_input:
         address_db = json.load(master_input)
+    # TODO: Create a new file every 300 records
     with open(file_name + '.csv', 'w', newline='') as csv_output:
         csv_writer = csv.writer(csv_output, delimiter=',')
         csv_writer.writerow(['Number', 'Street', 'City', 'State', 'PostalCode', 'Latitude', 'Longitude', 'Type', 'ApartmentNumber'])
