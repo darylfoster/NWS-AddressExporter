@@ -64,7 +64,7 @@ def export_street_addresses(file_name):
                 postal_code = address['POSTALZIP']
                 latitude = address['YCOOR']
                 longitude = address['XCOOR']
-                if address['COMMENTS'] or address['UNIT']:
+                if (address['COMMENTS'] and address['COMMENTS'].strip()) or (address['UNIT'] and address['UNIT'].strip()):
                     address_type = 'Apartment'
                     apartment = address['UNIT']
                 else:
