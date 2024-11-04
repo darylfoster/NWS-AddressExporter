@@ -4,13 +4,17 @@ import csv
 import re
 import json
 
-function = sys.argv[1]
+action = sys.argv[1]
 
 def append_master_address(records, filename):
+    with open('TransylvaniaCounty.json', 'r') as imported_file:
+        imported_addresses = json.load(imported_file)
     with open(filename, 'r') as source_file:
         addresses = json.load(source_file)
     for record in records:
-        addresses[record['AddressKey']] = record
+        existing_address = imported_addresses[record['AddressKey']]
+        if existing_address is None:
+            addresses[record['AddressKey']] = record
     with open(filename, 'w') as output_file:
         json.dump(addresses, output_file)
 
@@ -71,7 +75,7 @@ def extract_street_addresses(street_name, master_source, destination_file, flag)
                 apartment = None
             csv_writer.writerow([number, street, city, state, postal_code, latitude, longitude, address_type, apartment])
 
-match sys.argv[1]:
+match action:
     case 'pull':
         request_addresses(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8] + '.json')
     case 'export':
@@ -79,4 +83,4 @@ match sys.argv[1]:
     case 'append':
         extract_street_addresses(sys.argv[2], sys.argv[3] + '.json', sys.argv[4], 'a')
     case default:
-        print('Unknown argument: ' + sys.argv[1])
+        print('Unknown argument: ' + action)
