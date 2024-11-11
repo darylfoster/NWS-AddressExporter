@@ -12,11 +12,12 @@ def request_addresses():
     city = 'BREVARD'
     longitude_min = -82.72856422933208
     longitude_max = -82.65685061335734
-    # latitude_min = 35.25985966009217
-    # latitude_max = 35.28591600668164
-    latitude_min = 35.23380331
-    latitude_max = 35.25985967
-    where_parameters = 'COUNTY = \'' + county + '\' AND POSTALCOM = \'' + city + '\' AND XCOOR >= ' + str(longitude_min) + ' AND XCOOR <= ' + str(longitude_max) + ' AND YCOOR >= ' + str(latitude_min) + ' AND YCOOR <= ' + str(latitude_max)
+    latitude_min = 35.25985966009217
+    latitude_max = 35.28591600668164
+    # latitude_min = 35.23380331
+    # latitude_max = 35.25985967
+    # where_parameters = 'COUNTY = \'' + county + '\' AND POSTALCOM = \'' + city + '\' AND XCOOR >= ' + str(longitude_min) + ' AND XCOOR <= ' + str(longitude_max) + ' AND YCOOR >= ' + str(latitude_min) + ' AND YCOOR <= ' + str(latitude_max)
+    where_parameters = 'COUNTY = \'' + county + '\' AND XCOOR >= ' + str(longitude_min) + ' AND XCOOR <= ' + str(longitude_max) + ' AND YCOOR >= ' + str(latitude_min) + ' AND YCOOR <= ' + str(latitude_max)
     parameters = {
       'where':where_parameters,
       'outFields':'*',
@@ -83,12 +84,15 @@ def export_street_addresses(file_name):
             postal_code = address['POSTALZIP']
             latitude = address['YCOOR']
             longitude = address['XCOOR']
-            if (address['COMMENTS'] and address['COMMENTS'].strip()) or (address['UNIT'] and address['UNIT'].strip()):
+            apartment = address['UNIT']
+            if address['ADDRESSTYPE'] == 'COM':
+                address_type = 'Business'
+            elif address['ADDRESSTYPE'] == 'MFD':
                 address_type = 'Apartment'
-                apartment = address['UNIT']
-            else:
+            elif address['ADDRESSTYPE'] == 'SFD':
                 address_type = 'House'
-                apartment = None
+            else:
+                address_type = 'Other'
             csv_writer.writerow([number, street, city, state, postal_code, latitude, longitude, address_type, apartment])
             address['Exported'] = True
             record_count += 1
