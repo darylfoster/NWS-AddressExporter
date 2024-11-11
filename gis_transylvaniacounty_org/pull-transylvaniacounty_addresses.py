@@ -12,10 +12,10 @@ def request_addresses():
     city = 'BREVARD'
     longitude_min = -82.72856422933208
     longitude_max = -82.65685061335734
-    latitude_min = 35.25985966009217
-    latitude_max = 35.28591600668164
-    # latitude_min = 35.23380331
-    # latitude_max = 35.25985967
+    # latitude_min = 35.25985966009217
+    # latitude_max = 35.28591600668164
+    latitude_min = 35.23380331
+    latitude_max = 35.25985967
     # where_parameters = 'COUNTY = \'' + county + '\' AND POSTALCOM = \'' + city + '\' AND XCOOR >= ' + str(longitude_min) + ' AND XCOOR <= ' + str(longitude_max) + ' AND YCOOR >= ' + str(latitude_min) + ' AND YCOOR <= ' + str(latitude_max)
     where_parameters = 'COUNTY = \'' + county + '\' AND XCOOR >= ' + str(longitude_min) + ' AND XCOOR <= ' + str(longitude_max) + ' AND YCOOR >= ' + str(latitude_min) + ' AND YCOOR <= ' + str(latitude_max)
     parameters = {
