@@ -16,13 +16,17 @@ Python scripts for pulling addresses from web APIs and exporting the address dat
 
     a. Unix/Linux/MacOS
 
-    ```bash
+    ```shell
     > source /path/to/new/virtual/environment/bin/activate
     ```
     b. Windows
 
-    ```> C:\path\to\new\virtual\environment\Scripts\activate```
+    ```
+    > C:\path\to\new\virtual\environment\Scripts\activate
+    ```
 4. Install Python "requests" package with the following command:
 
-    ```(venv) python3 -m pip install requests```
+    ```shell
+    (venv) python3 -m pip install requests
+    ```
 
