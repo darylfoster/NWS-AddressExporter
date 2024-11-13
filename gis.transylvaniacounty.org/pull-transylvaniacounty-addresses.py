@@ -35,7 +35,11 @@ def request_addresses(area):
     response = requests.get(url)
     if response.ok:
         response_data = response.json()
-        return response_data['features']
+        if response_data['exceededTransferLimit']:
+            print('The query exceeded the transfer limit.')
+            return None
+        else:
+            return response_data['features']
     else:
         print('Response code: ' + str(response.status_code) + '\nResponse detail: ' + response.text)
         return None
