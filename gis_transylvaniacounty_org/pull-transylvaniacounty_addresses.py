@@ -6,18 +6,22 @@ import json
 
 master_file_name = 'TransylvaniaCounty.json'
 
-def request_addresses():
+class GeoRectangle:
+    longitude_min = 0
+    longitude_max = 0
+    latitude_min = 0
+    latitude_max = 0
+
+    def __init__(self, longitude_min, longitude_max, latitude_min, latitude_max):
+        self.longitude_min = longitude_min
+        self.longitude_max = longitude_max
+        self.latitude_min = latitude_min
+        self.latitude_max = latitude_max
+
+def request_addresses(area):
     url_base = 'https://gis.transylvaniacounty.org/server/rest/services/Addresses/FeatureServer/0/query?'
     county = 'TRANSYLVANIA'
-    city = 'BREVARD'
-    longitude_min = -82.72856422933208
-    longitude_max = -82.65685061335734
-    # latitude_min = 35.25985966009217
-    # latitude_max = 35.28591600668164
-    latitude_min = 35.23380331
-    latitude_max = 35.25985967
-    # where_parameters = 'COUNTY = \'' + county + '\' AND POSTALCOM = \'' + city + '\' AND XCOOR >= ' + str(longitude_min) + ' AND XCOOR <= ' + str(longitude_max) + ' AND YCOOR >= ' + str(latitude_min) + ' AND YCOOR <= ' + str(latitude_max)
-    where_parameters = 'COUNTY = \'' + county + '\' AND XCOOR >= ' + str(longitude_min) + ' AND XCOOR <= ' + str(longitude_max) + ' AND YCOOR >= ' + str(latitude_min) + ' AND YCOOR <= ' + str(latitude_max)
+    where_parameters = 'COUNTY = \'' + county + '\' AND XCOOR >= ' + str(area.longitude_min) + ' AND XCOOR <= ' + str(area.longitude_max) + ' AND YCOOR >= ' + str(area.latitude_min) + ' AND YCOOR <= ' + str(area.latitude_max)
     parameters = {
       'where':where_parameters,
       'outFields':'*',
@@ -63,13 +67,13 @@ def init_csv_file(file_name):
 def export_street_addresses(file_name):
     with open(master_file_name, 'r') as master_input:
         address_db = json.load(master_input)
-    # TODO: Create a new file every 300 records
     record_count = 0
     file_count = 0
     csv_output, csv_writer = init_csv_file(file_name)
     for key in address_db:
         address = address_db[key]
 
+        # Create a new file every 300 records
         if record_count >= 300:
             record_count = 0
             file_count += 1
@@ -105,7 +109,12 @@ action = sys.argv[1]
 
 match action:
     case 'pull':
-        address_data = request_addresses()
+        lng_min = sys.argv[2]
+        lng_max = sys.argv[3]
+        lat_min = sys.argv[4]
+        lat_max = sys.argv[5]
+        area = GeoRectangle(lng_min, lng_max, lat_min, lat_max)
+        address_data = request_addresses(area)
         append_master_addresses(address_data)
     case 'export':
         export_street_addresses(sys.argv[2])
