@@ -35,7 +35,7 @@ def request_addresses(area):
     response = requests.get(url)
     if response.ok:
         response_data = response.json()
-        if response_data['exceededTransferLimit']:
+        if 'exceededTransferLimit' in response_data and response_data['exceededTransferLimit']:
             print('The query exceeded the transfer limit.')
             return None
         else:
@@ -119,7 +119,8 @@ match action:
         lat_max = sys.argv[5]
         area = GeoRectangle(lng_min, lng_max, lat_min, lat_max)
         address_data = request_addresses(area)
-        append_master_addresses(address_data)
+        if address_data:
+            append_master_addresses(address_data)
     case 'export':
         export_street_addresses(sys.argv[2])
     case default:
