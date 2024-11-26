@@ -96,7 +96,10 @@ def export_street_addresses(file_name):
             if address['ADDRESSTYPE'] == 'COM':
                 address_type = 'Business'
             elif address['ADDRESSTYPE'] == 'MFD':
-                address_type = 'Apartment'
+                if apartment and not apartment.isspace():
+                    address_type = 'Apartment'
+                else:
+                    address_type = 'House'
             elif address['ADDRESSTYPE'] == 'SFD':
                 address_type = 'House'
             else:
