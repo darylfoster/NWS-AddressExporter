@@ -53,7 +53,7 @@ def append_master_addresses(records):
         address = record['attributes']
         object_id = str(address['OBJECTID'])
         if object_id not in address_db or not address_db[object_id]:
-            if address['FULLADDR'] + '-' + address['POSTALCOM'] in exported_addresses:
+            if address['FULLADDR'] and address['POSTALCOM'] and address['FULLADDR'] + '-' + address['POSTALCOM'] in exported_addresses:
                 address['Exported'] = True
             else:
                 address['Exported'] = False
