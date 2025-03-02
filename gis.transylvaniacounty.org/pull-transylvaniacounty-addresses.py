@@ -111,6 +111,17 @@ def export_street_addresses(file_name):
     with open(master_file_name, 'w') as master_output:
         json.dump(address_db, master_output)
 
+def export_street(street_name, file_name):
+    with open(master_file_name, 'r') as master_input:
+        address_db = json.load(master_input)
+    for key in address_db:
+        address = address_db[key]
+        if address['STREETNAME'] == street_name:
+            address['Exported'] = False
+    with open(master_file_name, 'w') as master_output:
+        json.dump(address_db, master_output)
+    export_street_addresses(file_name)
+
 # Script starts here
 action = sys.argv[1]
 
@@ -126,5 +137,7 @@ match action:
             append_master_addresses(address_data)
     case 'export':
         export_street_addresses(sys.argv[2])
+    case 'export-street':
+        export_street(sys.argv[2], sys.argv[3])
     case default:
         print('Unknown argument: ' + action)
